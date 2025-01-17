@@ -6,18 +6,25 @@ const app = express();
 app.set("view engine", "ejs");
 
 // // 페이지 로딩 함수
-// app.get("/", function (req, res){
-//     //console.log(res);
-//     res.render("test", {}); // view 폴더 밑에 있는 파일을 참조함
-// });
+app.get("/", function (req, res){
+    //console.log(res);
+    res.render("test", {}); // view 폴더 밑에 있는 파일을 참조함
+});
 
 
-// app.get("/test", function (req, res){
-//     //console.log(res);
-//     res.render("test2", {}); // view 폴더 밑에 있는 파일을 참조함
-// });
+app.get("/test", function (req, res){
+    //console.log(res);
+    res.render("test2", {}); // view 폴더 밑에 있는 파일을 참조함
+});
 
-// app.use(express.static("public"));
+app.use(express.static("public"));
+
+
+app.get("/test3", function (req, res){
+    //console.log(res);
+    res.render("test3", {}); // view 폴더 밑에 있는 파일을 참조함
+});
+
 
 // Home 페이지 라우트
 app.get("/",function (req, res){
