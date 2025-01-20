@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+
+  <body>
+    <div class="input-wrap">
+      <!-- 아이디 숫자 중복 불가 -->
+      <input type="number" id="id" placeholder="아이디를 입력해 주세요." />
+      <div id="idred"></div>
+
+      <!-- 이름 중복 가능 -->
+      <input type="text" id="name" placeholder="이름을 입력해 주세요" />
+      <div id="namered"></div>
+
+      <!-- 나이 숫자 -->
+      <input type="number" id="age" placeholder="나이을 입력해 주세요" />
+
+      <!-- 경력사항 최소 15자리 이상 -->
+      <input type="text" id="careers" placeholder="경력을 입력해 주세요" />
+      <div id="careersred"></div>
+
+      <!-- 별명 최소 2자리 이상, 중복 불가 -->
+      <input type="text" id="nickNames" placeholder="별명을 입력해 주세요" />
+      <div id="nickNamesred"></div>
+
+      <button onclick="saveDate()">저장</button>
+    </div>
+
+    <!-- 테이블 -->
+    <div class="main-wrap"></div>
+  </body>
+
+  <script>
+    const table = document.createElement("table");
+    const thead = document.createElement("thead");
+    const tbody = document.createElement("tbody");
+
+    // 테이블 헤더 생성
+    const tr1 = document.createElement("tr");
+    ["아이디", "이름", "나이", "경력", "별명"].forEach((text) => {
+      const th = document.createElement("th");
+      th.innerText = text;
+      tr1.appendChild(th);
+    });
+    thead.appendChild(tr1);
+    table.appendChild(thead);
+    table.appendChild(tbody);
+
+    document.querySelector(".main-wrap").appendChild(table);
+
+    let savedData = JSON.parse(localStorage.getItem("userInfo")) || [];
+
+    // 새로고침 시 데이터 유지
+    window.onload = function () {
+      savedData.forEach((userInfo) => {
+        addRowToTable(userInfo);
+      });
+    };
+
+    // 유효성 검사
+    function validateInput(userInfo) {
+      let isValid = true;
+
+      // Reset error messages
+      document.querySelectorAll(".error").forEach((el) => (el.innerText = ""));
+
+      if (savedData.some((user) => user.id === userInfo.id)) {
+        document.getElementById("idred").innerText = "아이디가 중복됩니다.";
+        isValid = false;
+      }
+
+      if (userInfo.careers.length < 15) {
+        document.getElementById("careersred").innerText =
+          "경력사항은 최소 15자 이상이어야 합니다.";
+        isValid = false;
+      }
+
+      if (userInfo.nickNames.length < 2) {
+        document.getElementById("nickNamesred").innerText =
+          "별명은 최소 2자 이상이어야 합니다.";
+        isValid = false;
+      } else if (
+        savedData.some((user) => user.nickNames === userInfo.nickNames)
+      ) {
+        document.getElementById("nickNamesred").innerText =
+          "별명이 중복됩니다.";
+        isValid = false;
+      }
+
+      return isValid;
+    }
+
+    // 데이터 저장
+    function saveData() {
+      const idElement = document.getElementById("id");
+      const nameElement = document.getElementById("name");
+      const ageElement = document.getElementById("age");
+      const careersElement = document.getElementById("careers");
+      const nickNamesElement = document.getElementById("nickNames");
+
+      const userInfo = {
+        id: idElement.value.trim(),
+        name: nameElement.value.trim(),
+        age: ageElement.value.trim(),
+        careers: careersElement.value.trim(),
+        nickNames: nickNamesElement.value.trim(),
+      };
+
+      if (!validateInput(userInfo)) return;
+
+      savedData.push(userInfo);
+      localStorage.setItem("userInfo", JSON.stringify(savedData));
+
+      addRowToTable(userInfo);
+
+      // 입력 초기화
+      idElement.value = "";
+      nameElement.value = "";
+      ageElement.value = "";
+      careersElement.value = "";
+      nickNamesElement.value = "";
+    }
+
+    // 테이블에 행 추가
+    function addRowToTable(userInfo) {
+      const tr = document.createElement("tr");
+
+      Object.values(userInfo).forEach((value) => {
+        const td = document.createElement("td");
+        td.innerText = value;
+        tr.appendChild(td);
+      });
+
+      tbody.appendChild(tr);
+    }
+
+    //데이터 저장
+    // function SaveDate() {
+    //   const idElement = document.getElementById("id");
+    //   const nameElement = document.getElementById("name");
+    //   const ageElement = document.getElementById("age");
+    //   const careersElement = document.getElementById("careers");
+    //   const nickNamesElement = document.getElementById("nickNames");
+
+    //   const tableElement = document.getElementById("Maintable");
+
+    //   let userInfo = {
+    //     id: idElement.value,
+    //     name: nameElement.value,
+    //     age: ageElement.value,
+    //     careers: careersElement.value,
+    //     nickNames: nickNamesElement.value,
+    //   };
+
+    //   const redKey = Object.keys(userInfo).map((info) => userInfo[info]);
+
+    //   const redInfo = redKey.filter((info) => info === idElement.value);
+    //   if (redInfo.length > 1) {
+    //     idred.innerText = "중복입니다.";
+    //   } else {
+    //   }
+    //   saveDate.push(userInfo);
+    //   window.localStorage.setItem("userInfo", JSON.stringify(saveDate));
+
+    //   const useraddInfo = JSON.parse(window.localStorage.getItem("userInfo"));
+
+    //   // 테이블에 데이터 추가
+    //   const tr = document.createElement("tr");
+
+    //   Object.values(userInfo).forEach((value) => {
+    //     const td = document.createElement("td");
+    //     td.innerText = value;
+    //     tr.appendChild(td);
+    //   });
+
+    //   tbody.appendChild(tr);
+
+    //   // 입력 초기화
+    //   idElement.value = "";
+    //   nameElement.value = "";
+    //   ageElement.value = "";
+    //   careersElement.value = "";
+    //   nickNamesElement.value = "";
+    // }
+  </script>
+</html>
