@@ -107,11 +107,6 @@
         document.getElementById("careersred").innerText = "";
         document.getElementById("nickNamesred").innerText = "";
 
-        // if (savedData.some((user) => user.id === id)) {
-        //   document.getElementById("idred").innerText = "아이디가 중복됩니다.";
-        //   isValid = false;
-        // }
-
         if (input.id === "id") {
           if (!id) {
             document.getElementById("idred").innerText = "아이디를 입력하세요.";
@@ -213,31 +208,89 @@
       }
 
       // 수정
+      // 수정(이름, 나이, 경력)만 수정
       function editRow(userInfo, row) {
+        const nameCell = row.cells[1];
+        const ageCell = row.cells[2];
         const careersCell = row.cells[3];
-        const originalCareer = careersCell.innerText;
 
-        const input = document.createElement("input");
-        input.type = "text";
-        input.value = originalCareer;
+        const originalName = nameCell.innerText;
+        const originalAge = ageCell.innerText;
+        const originalCareers = careersCell.innerText;
+
+        const nameInput = document.createElement("input");
+        const ageInput = document.createElement("input");
+        const careersInput = document.createElement("input");
+
+        nameInput.type = "text";
+        ageInput.type = "number";
+        careersInput.type = "text";
+
+        nameInput.value = originalName;
+        ageInput.value = originalAge;
+        careersInput.value = originalCareers;
+
+        nameCell.innerHTML = "";
+        ageCell.innerHTML = "";
         careersCell.innerHTML = "";
-        careersCell.appendChild(input);
+
+        nameCell.appendChild(nameInput);
+        ageCell.appendChild(ageInput);
+        careersCell.appendChild(careersInput);
+
+        // 테이블 각 셀 밑에 에러메세지
+        const nameError = document.createElement("div");
+        const ageError = document.createElement("div");
+        const careersError = document.createElement("div");
+
+        nameError.className = "error";
+        ageError.className = "error";
+        careersError.className = "error";
+
+        nameCell.appendChild(nameError);
+        ageCell.appendChild(ageError);
+        careersCell.appendChild(careersError);
+
+        // 실시간 오류 메세지
+        nameInput.addEventListener("input", () => {
+          validateField(nameInput, "name", nameError);
+        });
+        ageInput.addEventListener("input", () => {
+          validateField(ageInput, "age", ageError);
+        });
+        careersInput.addEventListener("input", () => {
+          validateField(careersInput, "careers", careersError);
+        });
 
         // 수정완료버튼
         const editBtn = row.cells[5].querySelector("button");
         editBtn.innerText = "수정완료";
+
         editBtn.onclick = () => {
-          const newCareer = input.value.trim();
-          if (newCareer.length < 15) {
-            document.getElementById("careersred").innerText =
-              "경력은 최소 15자 이상이어야 합니다.";
-            return;
-          }
+          const newName = nameInput.value.trim();
+          const newAge = parseInt(ageInput.value.trim());
+          const newCareers = careersInput.value.trim();
+
+          let isValid = true;
+
+          // 최종 검증
+          isValid =
+            validateField(nameInput, "name", nameError) &
+            validateField(ageInput, "age", ageError) &
+            validateField(careersInput, "careers", careersError);
+
+          if (!isValid) return;
 
           // 로컬스토리지 수정
-          careersCell.innerHTML = newCareer;
-          userInfo.careers = newCareer;
+          nameCell.innerHTML = newName;
+          ageCell.innerHTML = newAge;
+          careersCell.innerHTML = newCareers;
+
+          userInfo.name = newName;
+          userInfo.age = newAge;
+          userInfo.careers = newCareers;
           localStorage.setItem("userInfo", JSON.stringify(savedData));
+
           editBtn.innerText = "수정";
           editBtn.onclick = () => editRow(userInfo, row);
         };
@@ -251,6 +304,40 @@
         savedData = savedData.filter((user) => user.id !== id);
         localStorage.setItem("userInfo", JSON.stringify(savedData));
         row.remove();
+      }
+
+      // 조건 검사
+      function validateField(input, type, errorElement) {
+        const value = input.value.trim();
+        let isValid = true;
+
+        errorElement.innerText = "";
+
+        if (type === "name") {
+          if (!value) {
+            errorElement.innerText = "이름을 입력하세요.";
+            isValid = false;
+          } else if (savedData.some((user) => user.name === value)) {
+            errorElement.innerText = "이름이 중복됩니다.";
+            isValid = false;
+          }
+        }
+
+        if (type === "age") {
+          if (!value || value <= 0 || value > 150) {
+            errorElement.innerText = "나이는 1부터 150 사이여야 합니다.";
+            isValid = false;
+          }
+        }
+
+        if (type === "carrers") {
+          if (!value || value.length < 15) {
+            errorElement.innerText = "경력은 최소 15자 이상이어야 합니다.";
+            isValid = false;
+          }
+        }
+
+        return isValid;
       }
     </script>
   </body>
